@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: linkedin-profile-api
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health/ready
+    autoDeploy: false
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: API_KEY
+        sync: false
+      - key: LINKEDIN_LI_AT
+        sync: false
+      - key: LINKEDIN_JSESSIONID
+        sync: false
+      - key: CACHE_TTL_SECONDS
+        value: '900'
+      - key: MAX_CONCURRENT_REQUESTS
+        value: '4'
+      - key: MIN_UPSTREAM_INTERVAL_SECONDS
+        value: '0.6'

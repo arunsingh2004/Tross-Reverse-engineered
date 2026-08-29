@@ -1,0 +1,123 @@
+{
+  "data": {
+    "$type": "com.linkedin.restli.common.CollectionResponse",
+    "*elements": ["urn:li:fsd_profile:target"]
+  },
+  "included": [
+    {
+      "$type": "com.linkedin.voyager.dash.identity.profile.Profile",
+      "entityUrn": "urn:li:fsd_profile:target",
+      "publicIdentifier": "ada-lovelace",
+      "firstName": "Ada",
+      "lastName": "Lovelace",
+      "headline": {"text": "Computing pioneer"},
+      "summary": {"text": "Mathematician &amp; writer."},
+      "geoLocation": {"geoUrn": "urn:li:fsd_geo:london"},
+      "profilePicture": {
+        "displayImageReference": {
+          "vectorImage": {
+            "rootUrl": "https://media.licdn.com/",
+            "artifacts": [
+              {"width": 100, "height": 100, "fileIdentifyingUrlPathSegment": "small.jpg"},
+              {"width": 400, "height": 400, "fileIdentifyingUrlPathSegment": "large.jpg"}
+            ]
+          }
+        }
+      },
+      "followerCount": 12300,
+      "connectionCount": 500,
+      "*profilePositionGroups": "urn:li:collectionResponse:position-groups",
+      "*profileEducations": "urn:li:collectionResponse:educations",
+      "*profileSkills": "urn:li:collectionResponse:skills",
+      "*profileCertifications": "urn:li:collectionResponse:certifications",
+      "*profileLanguages": "urn:li:collectionResponse:languages"
+    },
+    {
+      "$type": "com.linkedin.voyager.dash.identity.profile.Profile",
+      "entityUrn": "urn:li:fsd_profile:unrelated",
+      "firstName": "Wrong",
+      "lastName": "Person"
+    },
+    {
+      "$type": "com.linkedin.voyager.dash.common.Geo",
+      "entityUrn": "urn:li:fsd_geo:london",
+      "defaultLocalizedName": "London, United Kingdom"
+    },
+    {
+      "$type": "com.linkedin.restli.common.CollectionResponse",
+      "entityUrn": "urn:li:collectionResponse:position-groups",
+      "*elements": ["urn:li:fsd_profilePositionGroup:analytical-engine"]
+    },
+    {
+      "$type": "com.linkedin.voyager.dash.identity.profile.PositionGroup",
+      "entityUrn": "urn:li:fsd_profilePositionGroup:analytical-engine",
+      "companyName": {"text": "Independent"},
+      "*profilePositionInPositionGroup": "urn:li:collectionResponse:positions"
+    },
+    {
+      "$type": "com.linkedin.restli.common.CollectionResponse",
+      "entityUrn": "urn:li:collectionResponse:positions",
+      "*elements": ["urn:li:fsd_profilePosition:analyst"]
+    },
+    {
+      "$type": "com.linkedin.voyager.dash.identity.profile.Position",
+      "entityUrn": "urn:li:fsd_profilePosition:analyst",
+      "title": {"text": "Analyst"},
+      "employmentType": "Independent",
+      "locationName": "London",
+      "description": {"text": "Created the first published algorithm."},
+      "dateRange": {"start": {"month": 1, "year": 1842}, "end": {"month": 12, "year": 1843}}
+    },
+    {
+      "$type": "com.linkedin.voyager.dash.identity.profile.Position",
+      "entityUrn": "urn:li:fsd_profilePosition:unrelated",
+      "title": "This position must not leak into the result",
+      "companyName": "Wrong Company"
+    },
+    {
+      "$type": "com.linkedin.restli.common.CollectionResponse",
+      "entityUrn": "urn:li:collectionResponse:educations",
+      "*elements": ["urn:li:fsd_profileEducation:one"]
+    },
+    {
+      "$type": "com.linkedin.voyager.dash.identity.profile.Education",
+      "entityUrn": "urn:li:fsd_profileEducation:one",
+      "schoolName": "Self-directed study",
+      "degreeName": "Mathematics",
+      "fieldOfStudy": "Computation",
+      "dateRange": {"start": {"year": 1830}, "end": {"year": 1835}}
+    },
+    {
+      "$type": "com.linkedin.restli.common.CollectionResponse",
+      "entityUrn": "urn:li:collectionResponse:skills",
+      "*elements": ["urn:li:fsd_profileSkill:math", "urn:li:fsd_profileSkill:algorithms"]
+    },
+    {"entityUrn": "urn:li:fsd_profileSkill:math", "$type": "ProfileSkill", "name": "Mathematics"},
+    {"entityUrn": "urn:li:fsd_profileSkill:algorithms", "$type": "ProfileSkill", "name": "Algorithms"},
+    {
+      "$type": "com.linkedin.restli.common.CollectionResponse",
+      "entityUrn": "urn:li:collectionResponse:certifications",
+      "*elements": ["urn:li:fsd_profileCertification:one"]
+    },
+    {
+      "entityUrn": "urn:li:fsd_profileCertification:one",
+      "$type": "ProfileCertification",
+      "name": "Example Credential",
+      "authority": "Example Authority",
+      "licenseNumber": "ABC-123",
+      "url": "https://credentials.example/ABC-123",
+      "dateRange": {"start": {"month": 1, "year": 1843}}
+    },
+    {
+      "$type": "com.linkedin.restli.common.CollectionResponse",
+      "entityUrn": "urn:li:collectionResponse:languages",
+      "*elements": ["urn:li:fsd_profileLanguage:english"]
+    },
+    {
+      "entityUrn": "urn:li:fsd_profileLanguage:english",
+      "$type": "ProfileLanguage",
+      "name": "English",
+      "proficiency": "NATIVE_OR_BILINGUAL"
+    }
+  ]
+}

@@ -1,0 +1,270 @@
+openapi: 3.1.0
+info:
+  title: LinkedIn Profile API
+  version: 1.0.0
+  description: >-
+    Calls LinkedIn's reverse-engineered Voyager/Dash HTTP endpoint directly and returns
+    normalized structured JSON. No browser or model API is used.
+servers:
+  - url: https://your-service.example.com
+    description: Replace with the deployed HTTPS endpoint
+  - url: http://localhost:8000
+    description: Local development
+tags:
+  - name: Profiles
+  - name: Health
+paths:
+  /v1/profiles:
+    post:
+      tags: [Profiles]
+      summary: Fetch a LinkedIn profile
+      operationId: fetchProfile
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+        - {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileRequest'
+            examples:
+              profile:
+                value:
+                  profile_url: https://www.linkedin.com/in/example-person
+      responses:
+        '200':
+          description: Profile returned. Check meta.partial and meta.warnings for optional fields that could not be read.
+          headers:
+            X-Request-ID:
+              schema: {type: string}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/InvalidProfileUrl'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '502':
+          $ref: '#/components/responses/UpstreamFailure'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+  /health/live:
+    get:
+      tags: [Health]
+      summary: Process liveness
+      security: []
+      responses:
+        '200':
+          description: Process is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: {type: string, const: ok}
+  /health/ready:
+    get:
+      tags: [Health]
+      summary: Service readiness and session configuration
+      security: []
+      responses:
+        '200':
+          description: Service is ready to receive requests
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, scraper, authenticated_session_configured]
+                properties:
+                  status: {type: string, const: ready}
+                  scraper: {type: string}
+                  authenticated_session_configured: {type: boolean}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  responses:
+    BadRequest:
+      description: Malformed JSON or invalid request fields
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    Unauthorized:
+      description: Missing or invalid API key when API_KEY is configured
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    NotFound:
+      description: Profile is absent or inaccessible
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    UnsupportedMediaType:
+      description: Request is not application/json
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    InvalidProfileUrl:
+      description: URL is not a valid LinkedIn /in/ profile URL
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    UpstreamFailure:
+      description: The direct LinkedIn request or response schema failed
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    RateLimited:
+      description: LinkedIn rate-limited the direct Voyager request; callers must stop and retry later
+      headers:
+        Retry-After:
+          schema: {type: integer}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+    Unavailable:
+      description: Request capacity is exhausted or LinkedIn authentication is required
+      headers:
+        Retry-After:
+          schema: {type: integer}
+      content:
+        application/problem+json:
+          schema: {$ref: '#/components/schemas/Problem'}
+  schemas:
+    ProfileRequest:
+      type: object
+      additionalProperties: false
+      required: [profile_url]
+      properties:
+        profile_url:
+          type: string
+          maxLength: 500
+          examples: [https://www.linkedin.com/in/example-person]
+    ProfileResponse:
+      type: object
+      additionalProperties: false
+      required: [data, meta]
+      properties:
+        data: {$ref: '#/components/schemas/Profile'}
+        meta: {$ref: '#/components/schemas/ResponseMeta'}
+    Profile:
+      type: object
+      additionalProperties: false
+      required:
+        - profile_url
+        - public_identifier
+        - name
+        - experience
+        - education
+        - skills
+        - certifications
+        - languages
+      properties:
+        profile_url: {type: string, format: uri}
+        public_identifier: {type: string}
+        name: {type: string}
+        headline: {type: [string, 'null']}
+        location: {type: [string, 'null']}
+        about: {type: [string, 'null']}
+        profile_image_url: {type: [string, 'null'], format: uri}
+        background_image_url: {type: [string, 'null'], format: uri}
+        follower_count: {type: [integer, 'null'], minimum: 0}
+        connection_count: {type: [integer, 'null'], minimum: 0}
+        experience:
+          type: array
+          items: {$ref: '#/components/schemas/Experience'}
+        education:
+          type: array
+          items: {$ref: '#/components/schemas/Education'}
+        skills:
+          type: array
+          items: {type: string}
+        certifications:
+          type: array
+          items: {$ref: '#/components/schemas/Certification'}
+        languages:
+          type: array
+          items: {$ref: '#/components/schemas/Language'}
+    Experience:
+      type: object
+      additionalProperties: false
+      required: [title, skills]
+      properties:
+        title: {type: string}
+        company: {type: [string, 'null']}
+        employment_type: {type: [string, 'null']}
+        location: {type: [string, 'null']}
+        start_date: {type: [string, 'null']}
+        end_date: {type: [string, 'null']}
+        duration: {type: [string, 'null']}
+        description: {type: [string, 'null']}
+        skills: {type: array, items: {type: string}}
+    Education:
+      type: object
+      additionalProperties: false
+      required: [school]
+      properties:
+        school: {type: string}
+        degree: {type: [string, 'null']}
+        field_of_study: {type: [string, 'null']}
+        start_year: {type: [string, 'null']}
+        end_year: {type: [string, 'null']}
+        grade: {type: [string, 'null']}
+        description: {type: [string, 'null']}
+    Certification:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: {type: string}
+        issuer: {type: [string, 'null']}
+        issue_date: {type: [string, 'null']}
+        expiration_date: {type: [string, 'null']}
+        credential_id: {type: [string, 'null']}
+        credential_url: {type: [string, 'null'], format: uri}
+    Language:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: {type: string}
+        proficiency: {type: [string, 'null']}
+    ResponseMeta:
+      type: object
+      additionalProperties: false
+      required: [request_id, scraped_at, source, cached, partial, warnings]
+      properties:
+        request_id: {type: string, format: uuid}
+        scraped_at: {type: string, format: date-time}
+        source: {type: string, const: linkedin_voyager_api}
+        cached: {type: boolean}
+        partial: {type: boolean}
+        warnings: {type: array, items: {type: string}}
+    Problem:
+      type: object
+      required: [type, title, status, detail, instance, code, request_id]
+      properties:
+        type: {type: string, format: uri}
+        title: {type: string}
+        status: {type: integer}
+        detail: {type: string}
+        instance: {type: string}
+        code: {type: string}
+        request_id: {type: string}
