@@ -125,7 +125,7 @@ When `API_KEY` is configured:
 ```bash
 curl --request POST https://your-service.example.com/v1/profiles \
   --header 'Content-Type: application/json' \
-  --header 'Authorization: Bearer your-service-api-key' \
+  --header 'Authorization: Bearer qwertyuiop' \
   --data '{"profile_url":"https://www.linkedin.com/in/example-person"}'
 ```
 
